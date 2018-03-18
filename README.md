@@ -1,6 +1,11 @@
-## Websocket Client and Server for ESP-8266
+## Websocket Client and Server for ESP-32
 
-This is a simple library that implements a Websocket client and server running on an ESP-8266.
+This is a simple library that implements a Websocket client and server running on an ESP-32.  This is based off of https://github.com/morrissinger/ESP8266-Websocket with some modifications to support ESP-32.
+
+Primary differences from ESP8266:
+* Removed MD5 library as this is provided by ESP-32 core
+* Changed WebSocketClient to recognize an alternate case variant of the "Sec-WebSocket-Accept" header ("Sec-Websocket-Accept")
+* writes entire frame in one go.
 
 ### Getting started
 
