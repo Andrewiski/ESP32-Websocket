@@ -65,6 +65,22 @@ bool WebSocketClient::analyzeRequest() {
 
 #ifdef DEBUGGING
     Serial.println(F("Sending websocket upgrade headers"));
+    Serial.print(F("GET "));
+    Serial.print(path);
+    Serial.print(F(" HTTP/1.1\r\n"));
+    Serial.print(F("Upgrade: websocket\r\n"));
+    Serial.print(F("Connection: Upgrade\r\n"));
+    Serial.print(F("Host: "));
+    Serial.print(host);
+    Serial.print(CRLF); 
+    Serial.print(F("Sec-WebSocket-Key: "));
+    Serial.print(key);
+    Serial.print(CRLF);
+    Serial.print(F("Sec-WebSocket-Protocol: "));
+    Serial.print(protocol);
+    Serial.print(CRLF);
+    Serial.print(F("Sec-WebSocket-Version: 13\r\n"));
+    Serial.print(CRLF);
 #endif    
 
     socket_client->print(F("GET "));
@@ -86,11 +102,13 @@ bool WebSocketClient::analyzeRequest() {
 
 #ifdef DEBUGGING
     Serial.println(F("Analyzing response headers"));
-#endif    
+#endif
 
     while (socket_client->connected() && !socket_client->available()) {
         delay(100);
+#ifdef DEBUGGING
         Serial.println("Waiting...");
+#endif
     }
 
     // TODO: More robust string extraction
