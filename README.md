@@ -1,28 +1,22 @@
-## Websocket Client and Server for ESP-32
+## Websocket Client for ESP-32
 
-This is a simple library that implements a Websocket client and server running on an ESP-32.  This is based off of https://github.com/morrissinger/ESP8266-Websocket with some modifications to support ESP-32.
+This is a simple library that implements a Websocket client for an ESP-32.  This is based off of https://github.com/morrissinger/ESP8266-Websocket with some modifications to support ESP-32 and WiFiClientSecure.
 
-Primary differences from ESP8266:
-* Removed MD5 library as this is provided by ESP-32 core
-* Changed WebSocketClient to recognize an alternate case variant of the "Sec-WebSocket-Accept" header ("Sec-Websocket-Accept")
-* writes entire frame in one go.
+Primary differences from ESP8266-Websocket:
 
-### Getting started
+* Removed MD5 library as this is provided by ESP32 core
+* Changed WebSocketClient to recognize a common alternate case variant of the "Sec-WebSocket-Accept" header ("Sec-Websocket-Accept").
+* Buffers writes to socket (up to 128 bytes) to better support WiFiClientSecure.
+* Removed WebSocketServer because there was no goal to implement that here.
 
-The example WebSocketServer.html file should be served from any web server you have access to. Remember to change the  URL in it to your Arduino. The examples are based on using a WiFly wireless card to connect. If you're using ethernet instead you'll need to swap out the client class.
-
-Install the library to "libraries" folder in your Arduino sketchbook folder. For example, on a mac that's `~/Documents/Arduino/libraries`.
-
-Try the examples to ensure that things work.
-
-Start playing with your own code!
-
-### Notes
-Inside of the WebSocketServer class there is a compiler directive to turn on support for the older "Hixie76" standard. If you don't need it, leave it off as it greatly increases the memory required.
-
-Because of limitations of the current Arduino platform (Uno at the time of this writing), this library does not support messages larger than 65535 characters. In addition, this library only supports single-frame text frames. It currently does not recognize continuation frames, binary frames, or ping/pong frames.
+### Notes / Limitations
+* Supports only single frame text frames.
+* Max frame size is 65535 characters.
+* No support for continuation, binary, or ping/pong.
 
 ### Credits
-Thank you to github user ejeklint for the excellent starting point for this library. From his original Hixie76-only code I was able to add support for RFC 6455 and create the WebSocket client.
+Thanks to morrissinger for [ESP8266-Websocket](https://github.com/morrissinger/ESP8266-Websocket), which this library has been forked from to add ESP32 support.
 
-- Branden
+Thanks to brandenhall, for [Arduino-Websocket](https://github.com/brandenhall/Arduino-Websocket) which morrissinger/ESP8266-Websocket was forked from to add ESP8266 support.
+
+Thanks to ejeklint for [Arduino-WebsocketServer](https://github.com/ejeklint/ArduinoWebsocketServer) which brandenhall/Arduino-Websocket was forked from was forked from in order to add non-hixie-76 support.
