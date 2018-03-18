@@ -307,18 +307,24 @@ int WebSocketClient::timedRead() {
 
 void WebSocketClient::sendEncodedData(char *str, uint8_t opcode) {
     uint8_t mask[4];
+    uint8_t frameBuffer[128];
+    size_t bufferIndex = 0;
+    size_t bytesWritten = 0;
     int size = strlen(str);
 
     // Opcode; final fragment
-    socket_client->write(opcode | WS_FIN);
-
+    frameBuffer[bufferIndex] = (opcode | WS_FIN);
+    bufferIndex++;
+    
     // NOTE: no support for > 16-bit sized messages
     if (size > 125) {
-        socket_client->write(WS_SIZE16 | WS_MASK);
-        socket_client->write((uint8_t) (size >> 8));
-        socket_client->write((uint8_t) (size & 0xFF));
+        frameBuffer[bufferIndex] = (WS_SIZE16 | WS_MASK);
+        frameBuffer[bufferIndex + 1] = ((uint8_t) (size >> 8));
+        frameBuffer[bufferIndex + 2] = ((uint8_t) (size & 0xFF));
+        bufferIndex += 3;
     } else {
-        socket_client->write((uint8_t) size | WS_MASK);
+        frameBuffer[bufferIndex] = ((uint8_t) size | WS_MASK);
+        bufferIndex++;
     }
 
     mask[0] = random(0, 256);
@@ -326,13 +332,34 @@ void WebSocketClient::sendEncodedData(char *str, uint8_t opcode) {
     mask[2] = random(0, 256);
     mask[3] = random(0, 256);
     
-    socket_client->write(mask[0]);
-    socket_client->write(mask[1]);
-    socket_client->write(mask[2]);
-    socket_client->write(mask[3]);
+    frameBuffer[bufferIndex] = (mask[0]);
+    frameBuffer[bufferIndex + 1] = (mask[1]);
+    frameBuffer[bufferIndex + 2] = (mask[2]);
+    frameBuffer[bufferIndex + 3] = (mask[3]);
+    bufferIndex += 4;
      
     for (int i=0; i<size; ++i) {
-        socket_client->write(str[i] ^ mask[i % 4]);
+        frameBuffer[bufferIndex] = (str[i] ^ mask[i % 4]);
+        bufferIndex++;
+        if (bufferIndex == 128) {
+            bytesWritten += socket_client->write(frameBuffer, bufferIndex);
+#ifdef DEBUGGING
+            Serial.print("Buffer size: ");
+            Serial.print(bufferIndex);
+            Serial.print(" Bytes Sent: ");
+            Serial.println(bytesWritten);
+#endif
+            bufferIndex = 0;
+        }
+    }
+    if (bufferIndex > 0) {
+        bytesWritten += socket_client->write(frameBuffer, bufferIndex);
+    #ifdef DEBUGGING
+        Serial.print("Buffer size: ");
+        Serial.print(bufferIndex);
+        Serial.print(" Bytes Sent: ");
+        Serial.println(bytesWritten);
+    #endif
     }
 }
 
