@@ -122,7 +122,7 @@ bool WebSocketClient::analyzeRequest() {
 #endif
             if (!foundupgrade && temp.startsWith("Upgrade: websocket")) {
                 foundupgrade = true;
-            } else if (temp.startsWith("Sec-WebSocket-Accept: ")) {
+            } else if (temp.startsWith("Sec-Websocket-Accept: ") || temp.startsWith("Sec-WebSocket-Accept: ")) {
                 serverKey = temp.substring(22,temp.length() - 2); // Don't save last CR+LF
             }
             temp = "";		
